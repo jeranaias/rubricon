@@ -22,5 +22,19 @@
   ],
   "scripts": {
     "test": "node --test"
-  }
+  },
+  "author": "jeranaias",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeranaias/rubricon.git"
+  },
+  "homepage": "https://github.com/jeranaias/rubricon#readme",
+  "bugs": "https://github.com/jeranaias/rubricon/issues",
+  "files": [
+    "src",
+    "example"
+  ]
 }

@@ -1,5 +1,7 @@
 # 📏 Rubricon
 
+[![CI](https://github.com/jeranaias/rubricon/actions/workflows/ci.yml/badge.svg)](https://github.com/jeranaias/rubricon/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 **Turn written standards into behaviorally-anchored rating scales — then prove they're grounded and measure whether people agree on them.**
 
 A standard tells you *what* someone must do. It rarely tells you *how to measure* whether they did it
