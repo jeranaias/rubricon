@@ -22,20 +22,20 @@ rubric *defensible*.
 import { generateRubric } from 'rubricon';
 
 const rubric = await generateRubric({
-  title: 'Defend a Position',
-  standard: 'Construct the position for the assigned sector, maintain 360° observation, be prepared to repel an attack.',
-  steps: ['Construct primary fighting positions…', 'Camouflage and conceal…', 'Maintain observation…'],
+  title: 'Handle an Escalated Customer Call',
+  standard: 'Verify the customer\'s identity, acknowledge the problem, resolve within policy or escalate, and confirm the next steps before ending the call.',
+  steps: ['Verify the caller\'s identity…', 'Acknowledge and restate the problem…', 'Apply the refund policy or escalate…'],
 });
 ```
 
 Each dimension comes back with *unsatisfactory / satisfactory / proficient* anchors and the **verbatim
-phrase** it derives from. And when a standard is too vague to measure honestly — "demonstrate sound
-leadership" — Rubricon **refuses to invent criteria** and flags it for a human instead:
+phrase** it derives from. And when a standard is too vague to measure honestly — "demonstrate a
+positive attitude" — Rubricon **refuses to invent criteria** and flags it for a human instead:
 
 ```jsonc
 { "flagged": true,
-  "reason": "Rests on 'sound' and 'satisfactory' with no observable behavior.",
-  "needsSME": "Define the observable indicators of discipline and leadership an evaluator can verify." }
+  "reason": "Rests on 'positive' with no observable behavior an evaluator could rate.",
+  "needsSME": "Define the observable indicators of attitude an evaluator can verify from the outside." }
 ```
 
 ## 2 · Verify it's actually grounded
@@ -100,11 +100,17 @@ npm test                       # the verification + reliability math is fully un
 
 | Function | Does |
 |---|---|
-| `generateRubric(task)` | standard → BARS rubric (or a flag) |
-| `verifyTraceability(rubric, sourceText)` | confirm each anchor's phrase is really in the source |
+| `generateRubric(task)` | standard → BARS rubric (or a flag). Needs a model key. |
+| `taskToText(task)` | flatten a standard object into the source text used above |
+| `verifyTraceability(rubric, sourceText, opts?)` | confirm each anchor's phrase is really in the source |
 | `validateRubric(rubric)` | structural checks: tiers present, distinct, sourced |
-| `cohenKappa` · `weightedKappa` · `fleissKappa` | inter-rater reliability |
-| `reliabilityReport(a, b)` | one-call agreement summary + interpretation |
+| `percentAgreement(a, b)` | raw fraction of items two raters scored identically |
+| `cohenKappa(a, b)` | chance-corrected agreement for two raters |
+| `weightedKappa(a, b, opts?)` | ordinal kappa — partial credit for one-tier-off |
+| `fleissKappa(ratings)` | chance-corrected agreement for a panel of 3+ raters |
+| `interpretKappa(k)` | Landis & Koch label for a kappa value |
+| `reliabilityReport(a, b, opts?)` | one-call agreement summary + interpretation |
+| `TIERS` | canonical tier→ordinal map (`unsatisfactory`/`satisfactory`/`proficient`) |
 
 ## License
 

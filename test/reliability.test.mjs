@@ -36,4 +36,18 @@ test('report + interpretation', () => {
   assert.equal(r.cohenKappa, 1);
   assert.equal(interpretKappa(1), 'almost perfect');
   assert.equal(interpretKappa(0.5), 'moderate');
+  assert.equal(interpretKappa(-0.1), 'poor');
+});
+
+test('numeric scores work the same as tier labels', () => {
+  assert.equal(cohenKappa([0, 1, 2, 1], [0, 1, 2, 1]), 1);
+  assert.ok(weightedKappa([0, 1, 2], [1, 2, 1]) <= 1);
+});
+
+test('bad input is rejected with clear errors', () => {
+  assert.throws(() => cohenKappa([1, 2], [1]), /equal, non-empty/);
+  assert.throws(() => percentAgreement('a', 'b'), /must be arrays/);
+  assert.throws(() => weightedKappa(['x'], ['x'], { categories: ['a', 'b'] }), /not in categories/);
+  assert.throws(() => fleissKappa([['y', 'y'], ['n']]), /same number of raters/);
+  assert.throws(() => fleissKappa([['y'], ['n']]), /at least 2 raters/);
 });

@@ -30,8 +30,15 @@ async function ask(system, user, tries = 4, timeoutMs = 90000) {
   return { error: 'failed' };
 }
 
-// Render a task/standard object into a single text blob.
+/**
+ * Render a task/standard object into a single text blob suitable for the model prompt and for
+ * verifyTraceability's source text.
+ * @param {object} task  a standard with any of: code, title, condition, standard,
+ *   performanceSteps|steps (array), references
+ * @returns {string} the flattened standard text
+ */
 function taskToText(task) {
+  if (!task || typeof task !== 'object') throw new Error('task must be an object');
   const steps = (task.performanceSteps || task.steps || []).map((s, i) => `  ${i + 1}. ${s}`).join('\n');
   return [
     task.code ? `Code: ${task.code}` : '',
@@ -58,8 +65,16 @@ Output JSON only, one of:
 OR
 {"flagged":true,"reason":"...","needsSME":"..."}`;
 
-/** Generate a BARS rubric for one standard/task object. */
+/**
+ * Generate a Behaviorally Anchored Rating Scale (BARS) for one standard/task object by calling an
+ * OpenAI-compatible chat model. Requires RUBRICON_API_KEY (or OPENROUTER_API_KEY).
+ * @param {object} task  the standard to build a rubric from (see {@link taskToText})
+ * @returns {Promise<object>} on success `{ flagged: false, dimensions: [...], task }`, a
+ *   `{ flagged: true, reason, needsSME, task }` when the standard is too vague to measure, or
+ *   `{ error, task }` if the model call fails
+ */
 export async function generateRubric(task) {
+  if (!task || typeof task !== 'object') throw new Error('task must be an object');
   const text = taskToText(task);
   const r = await ask(SYSTEM, `Standard:\n${text}\n\nProduce the BARS rubric per the rules.`);
   if (r.error) return { error: r.error, task: { code: task.code, title: task.title } };

@@ -1,12 +1,12 @@
 {
-  "code": "SQD-DEF-01",
-  "title": "Defend a Position",
-  "condition": "Given a squad, an assigned sector, and an enemy force capable of attacking the position.",
-  "standard": "Construct the position in accordance with the assigned sector, complete priorities of work, maintain 360-degree observation, and be prepared to repel an attack.",
+  "code": "CS-CALL-01",
+  "title": "Handle an Escalated Customer Call",
+  "condition": "Given an inbound call from a customer reporting a billing error, access to the account system, and the published refund policy.",
+  "standard": "Verify the customer's identity, acknowledge the reported problem, resolve it within policy or escalate, and confirm the next steps before ending the call.",
   "steps": [
-    "Construct primary fighting position(s) sited to cover the assigned sector.",
-    "Camouflage and conceal the position.",
-    "Maintain observation to the front, flank, and rear of the position.",
-    "Respond to fire commands and displace to alternate or supplementary positions on order."
+    "Verify the caller's identity using two approved identifiers before discussing the account.",
+    "Acknowledge the reported problem and restate it to confirm understanding.",
+    "Apply the refund policy, or escalate to a supervisor when the amount exceeds the agent limit.",
+    "Confirm the agreed next steps and the expected timeline before closing the call."
   ]
 }
