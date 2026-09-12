@@ -1,0 +1,12 @@
+{
+  "code": "SQD-DEF-01",
+  "title": "Defend a Position",
+  "condition": "Given a squad, an assigned sector, and an enemy force capable of attacking the position.",
+  "standard": "Construct the position in accordance with the assigned sector, complete priorities of work, maintain 360-degree observation, and be prepared to repel an attack.",
+  "steps": [
+    "Construct primary fighting position(s) sited to cover the assigned sector.",
+    "Camouflage and conceal the position.",
+    "Maintain observation to the front, flank, and rear of the position.",
+    "Respond to fire commands and displace to alternate or supplementary positions on order."
+  ]
+}

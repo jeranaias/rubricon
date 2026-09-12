@@ -1,0 +1,11 @@
+{
+  "name": "rubricon",
+  "version": "0.1.0",
+  "description": "Turn written standards into behaviorally-anchored rating scales — traceable, and honest about what it can't measure.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "src/rubric.js",
+  "bin": { "rubricon": "src/cli.mjs" },
+  "exports": { ".": "./src/rubric.js" },
+  "keywords": ["rubric", "bars", "assessment", "evaluation", "competency", "grounded", "llm"]
+}
