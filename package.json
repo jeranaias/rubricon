@@ -4,8 +4,23 @@
   "description": "Turn written standards into behaviorally-anchored rating scales — traceable, and honest about what it can't measure.",
   "license": "Apache-2.0",
   "type": "module",
-  "main": "src/rubric.js",
-  "bin": { "rubricon": "src/cli.mjs" },
-  "exports": { ".": "./src/rubric.js" },
-  "keywords": ["rubric", "bars", "assessment", "evaluation", "competency", "grounded", "llm"]
+  "main": "src/index.js",
+  "bin": {
+    "rubricon": "src/cli.mjs"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "keywords": [
+    "rubric",
+    "bars",
+    "assessment",
+    "evaluation",
+    "competency",
+    "grounded",
+    "llm"
+  ],
+  "scripts": {
+    "test": "node --test"
+  }
 }
