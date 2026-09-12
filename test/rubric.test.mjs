@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { taskToText } from '../src/rubric.js';
+import { taskToText, isValidRubricShape } from '../src/rubric.js';
 
 test('taskToText flattens a standard into labeled lines', () => {
   const text = taskToText({
@@ -29,4 +29,21 @@ test('taskToText omits empty fields', () => {
 test('taskToText rejects non-object input', () => {
   assert.throws(() => taskToText(null), /must be an object/);
   assert.throws(() => taskToText('a string'), /must be an object/);
+});
+
+test('isValidRubricShape accepts the two documented contracts', () => {
+  assert.equal(isValidRubricShape({ flagged: true, reason: 'too vague to measure' }), true);
+  assert.equal(isValidRubricShape({
+    flagged: false,
+    dimensions: [{ name: 'Clarity', source: 'restate the problem', anchors: { unsatisfactory: 'x', satisfactory: 'y', proficient: 'z' } }],
+  }), true);
+});
+
+test('isValidRubricShape rejects malformed model output', () => {
+  assert.equal(isValidRubricShape(null), false);
+  assert.equal(isValidRubricShape('a plausible string'), false);
+  assert.equal(isValidRubricShape({ flagged: true }), false);              // flag without reason
+  assert.equal(isValidRubricShape({ dimensions: [] }), false);             // empty
+  assert.equal(isValidRubricShape({ dimensions: [{ name: 'X', source: 's', anchors: { unsatisfactory: 'a', satisfactory: 'b' } }] }), false); // missing tier
+  assert.equal(isValidRubricShape({ dimensions: [{ name: 'X', anchors: { unsatisfactory: 'a', satisfactory: 'b', proficient: 'c' } }] }), false); // no source
 });

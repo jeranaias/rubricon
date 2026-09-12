@@ -65,6 +65,28 @@ Output JSON only, one of:
 OR
 {"flagged":true,"reason":"...","needsSME":"..."}`;
 
+const TIER_KEYS = ['unsatisfactory', 'satisfactory', 'proficient'];
+
+/**
+ * Shape gate for raw model JSON before it is handed back to a caller. Accepts exactly the two
+ * documented contracts: a flag ({ flagged:true, reason }) or a rubric ({ dimensions:[...] }) whose
+ * every dimension carries a name, a source phrase, and all three string tier anchors. Anything else
+ * is malformed and must not be trusted as a rubric.
+ * @param {*} r  parsed model output
+ * @returns {boolean}
+ */
+function isValidRubricShape(r) {
+  if (!r || typeof r !== 'object' || Array.isArray(r)) return false;
+  if (r.flagged === true) return typeof r.reason === 'string' && r.reason.trim().length > 0;
+  if (!Array.isArray(r.dimensions) || r.dimensions.length === 0) return false;
+  return r.dimensions.every((d) =>
+    d && typeof d === 'object' && !Array.isArray(d)
+    && typeof d.name === 'string' && d.name.trim()
+    && typeof d.source === 'string' && d.source.trim()
+    && d.anchors && typeof d.anchors === 'object' && !Array.isArray(d.anchors)
+    && TIER_KEYS.every((t) => typeof d.anchors[t] === 'string' && d.anchors[t].trim()));
+}
+
 /**
  * Generate a Behaviorally Anchored Rating Scale (BARS) for one standard/task object by calling an
  * OpenAI-compatible chat model. Requires RUBRICON_API_KEY (or OPENROUTER_API_KEY).
@@ -78,7 +100,8 @@ export async function generateRubric(task) {
   const text = taskToText(task);
   const r = await ask(SYSTEM, `Standard:\n${text}\n\nProduce the BARS rubric per the rules.`);
   if (r.error) return { error: r.error, task: { code: task.code, title: task.title } };
+  if (!isValidRubricShape(r)) return { error: 'malformed model output', task: { code: task.code, title: task.title } };
   return { ...r, task: { code: task.code, title: task.title } };
 }
 
-export { taskToText };
+export { taskToText, isValidRubricShape };

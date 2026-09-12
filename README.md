@@ -74,6 +74,22 @@ fleissKappa(panelRatings); // 3+ raters, one row per item
 Tier labels (`'proficient'`) or plain numbers both work. Weighted κ gives partial credit for
 one-tier-off; the report includes the Landis & Koch interpretation.
 
+> **Ordinal caveat — weighted κ needs to know the tier order.** Unlike the unweighted stats, weighted
+> κ scores a disagreement by *how many tiers apart* the two ratings are, so the category order is
+> load-bearing. Rubricon never guesses it alphabetically (which would rank `proficient < satisfactory
+> < unsatisfactory` — the scale reversed). It orders **numeric** scores numerically, **canonical
+> tier labels** through `TIERS`, and for **any other labels requires an explicit order**:
+>
+> ```js
+> weightedKappa(a, b, { categories: ['low', 'medium', 'high'] }); // labels not in TIERS → say the order
+> ```
+>
+> Passing such labels with no `categories` throws rather than returning a wrong number.
+
+> **Degenerate input.** When every rating is the same single category there is no variance to
+> chance-correct, so `cohenKappa`, `weightedKappa`, and `fleissKappa` return **`NaN`** (not a
+> misleading `1`), and `interpretKappa(NaN)` is `'undefined'`.
+
 ---
 
 ## Install & test
@@ -106,9 +122,9 @@ npm test                       # the verification + reliability math is fully un
 | `validateRubric(rubric)` | structural checks: tiers present, distinct, sourced |
 | `percentAgreement(a, b)` | raw fraction of items two raters scored identically |
 | `cohenKappa(a, b)` | chance-corrected agreement for two raters |
-| `weightedKappa(a, b, opts?)` | ordinal kappa — partial credit for one-tier-off |
+| `weightedKappa(a, b, opts?)` | ordinal kappa — partial credit for one-tier-off (needs a tier order: numbers, `TIERS` labels, or explicit `opts.categories`) |
 | `fleissKappa(ratings)` | chance-corrected agreement for a panel of 3+ raters |
-| `interpretKappa(k)` | Landis & Koch label for a kappa value |
+| `interpretKappa(k)` | Landis & Koch label for a kappa value (`'undefined'` for non-finite κ) |
 | `reliabilityReport(a, b, opts?)` | one-call agreement summary + interpretation |
 | `TIERS` | canonical tier→ordinal map (`unsatisfactory`/`satisfactory`/`proficient`) |
 

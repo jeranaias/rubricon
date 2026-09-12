@@ -5,9 +5,15 @@
 // substring, or by strong token overlap — and flags any anchor whose grounding can't be confirmed.
 // This is the difference between "the model said it's grounded" and "we checked."
 
-const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+// Unicode-aware: keep letters and numbers of ANY script (\p{L}\p{N}), not just ASCII a-z0-9,
+// so grounding works for non-English standards (accented, Arabic, CJK, Cyrillic, …).
+const norm = (s) => String(s || '').toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, ' ').replace(/\s+/g, ' ').trim();
 const STOP = new Set('a an the of to and or in on for with by is are be as at from that this it its into their your you we they them his her'.split(' '));
 const contentTokens = (s) => norm(s).split(' ').filter((w) => w.length > 2 && !STOP.has(w));
+
+// A source phrase must carry at least this many content tokens to ground anything. A lone word
+// ("identity") is too generic to confirm an anchor traces to the standard — substring or not.
+const MIN_GROUND_TOKENS = 2;
 
 function overlap(phrase, text) {
   const p = new Set(contentTokens(phrase));
@@ -33,7 +39,9 @@ export function verifyTraceability(rubric, sourceText, opts = {}) {
     const src = d.source || '';
     const nsrc = norm(src);
     let grounded = false, method = 'none', score = 0;
-    if (nsrc && text.includes(nsrc)) { grounded = true; method = 'substring'; score = 1; }
+    // Too-thin a source phrase cannot ground an anchor, by either method.
+    if (contentTokens(src).length < MIN_GROUND_TOKENS) { /* leave ungrounded */ }
+    else if (nsrc && text.includes(nsrc)) { grounded = true; method = 'substring'; score = 1; }
     else { score = overlap(src, sourceText); if (score >= threshold) { grounded = true; method = 'overlap'; } }
     return { name: d.name, source: src, grounded, method, score: Math.round(score * 100) / 100 };
   });
@@ -62,7 +70,10 @@ export function validateRubric(rubric) {
     }
     if (!d.source) issues.push(`dimension ${i + 1} (${d.name || '?'}) has no source phrase`);
     const vals = ['unsatisfactory', 'satisfactory', 'proficient'].map((t) => norm(a[t]));
-    if (vals[0] && (vals[0] === vals[1] || vals[1] === vals[2])) issues.push(`dimension ${i + 1} (${d.name || '?'}) has indistinct tiers`);
+    // Every pair must differ — including unsatisfactory vs. proficient (the ends), which a simple
+    // adjacent-only check misses. Only compare tiers that are actually present (non-empty).
+    if ([[0, 1], [1, 2], [0, 2]].some(([x, y]) => vals[x] && vals[y] && vals[x] === vals[y]))
+      issues.push(`dimension ${i + 1} (${d.name || '?'}) has indistinct tiers`);
   });
   return { valid: issues.length === 0, flagged: false, issues };
 }

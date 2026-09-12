@@ -37,6 +37,35 @@ test('coverage is reported across mixed grounded/ungrounded dimensions', () => {
   assert.equal(v.grounded, false);
 });
 
+test('grounding works for non-ASCII (Unicode) standards', () => {
+  // Old ASCII-only norm stripped the accents/script, so the substring never matched.
+  const fr = 'Vérifier l\'identité du client avant de poursuivre la démarche.';
+  const rubric = { dimensions: [{ name: 'Identité', source: 'Vérifier l\'identité du client', anchors: {} }] };
+  const v = verifyTraceability(rubric, fr);
+  assert.equal(v.grounded, true);
+  assert.equal(v.dimensions[0].method, 'substring');
+
+  const ar = 'يجب على المتدرب التحقق من هوية العميل قبل المتابعة.';
+  const arRubric = { dimensions: [{ name: 'هوية', source: 'التحقق من هوية العميل', anchors: {} }] };
+  assert.equal(verifyTraceability(arRubric, ar).grounded, true);
+});
+
+test('a one-word source phrase grounds nothing, even as a substring', () => {
+  // "identity" appears verbatim in the source, but a lone token is too generic to confirm.
+  const rubric = { dimensions: [{ name: 'Weak', source: 'identity', anchors: {} }] };
+  const v = verifyTraceability(rubric, source);
+  assert.equal(v.grounded, false);
+  assert.equal(v.dimensions[0].method, 'none');
+});
+
+test('validateRubric flags indistinct end tiers (unsatisfactory === proficient)', () => {
+  // Middle tier differs, so an adjacent-only check would miss that the two ends are identical.
+  const bad = { dimensions: [{ name: 'Ends', source: 's', anchors: { unsatisfactory: 'did the thing', satisfactory: 'did it well', proficient: 'did the thing' } }] };
+  const r = validateRubric(bad);
+  assert.equal(r.valid, false);
+  assert.ok(r.issues.some((m) => /indistinct tiers/.test(m)));
+});
+
 test('validateRubric flags a missing tier and indistinct tiers', () => {
   const bad = { dimensions: [{ name: 'X', source: 's', anchors: { unsatisfactory: 'same', satisfactory: 'same', proficient: '' } }] };
   const r = validateRubric(bad);
